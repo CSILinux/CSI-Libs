@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "csilibs"
+version = "1.0.1"
+description = "Libraries for CSI programs to easily manage projects"
+authors = ["infosecwriter", "PakCyberbot"]
+readme = "README.md"
+repository = "https://github.com/CSILinux/CSI-Libs"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Environment :: Console",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Topic :: Libraries"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+
+[package]
+name = "csilibs"
+
+[package.data]
+"assets/*" = "assets/*" 
