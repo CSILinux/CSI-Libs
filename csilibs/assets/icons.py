@@ -1,7 +1,7 @@
 import os
 
 __abs_path = os.path.abspath(os.path.dirname(__file__))        
-__ico_path = os.path.join(__abs_path,"assets/icons") 
+__ico_path = os.path.join(__abs_path,"icons") 
 
 
 CSI_BLACK = os.path.join(__ico_path, "csi_black.ico")

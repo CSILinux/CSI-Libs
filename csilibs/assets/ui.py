@@ -1,7 +1,7 @@
 import os
 
 __abs_path = os.path.abspath(os.path.dirname(__file__))  
-__ico_path = os.path.join(__abs_path,"assets/ui") 
+__ico_path = os.path.join(__abs_path,"ui") 
 
 PAGE = os.path.join(__ico_path, "page.png")
 SITE = os.path.join(__ico_path, "site_building.png")
