@@ -3,7 +3,7 @@ import os
 import shutil
 from PySide2.QtWidgets import QApplication, QWizard, QFileDialog, QLineEdit
 from PySide2 import QtCore, QtGui, QtWidgets
-from assets import images
+from csilibs.assets import images
 
 __abs_path = os.path.abspath(os.path.dirname(__file__))
 

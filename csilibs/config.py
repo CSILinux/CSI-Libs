@@ -10,7 +10,17 @@ def agency_wizard():
         print(f"An error occurred: {str(e)}")
         sys.exit()
 
-
+def new_case_wizard():
+    # returns case_name
+    try:
+        completed_process = subprocess.run(["python", os.path.join(__abs_path, "New_Case_Wizard.py")], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if completed_process.returncode == 0 and completed_process.stdout != '':
+            return os.path.basename(completed_process.stdout)
+        else:
+            return None
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return None
 # with open(pathme("data/agency_data.json"), "r") as file:
 #     data = json.load(file)
 #     if data.get("cases_folder") == '':  # by default agency_data.json shouldn't have any folder so that it can generate according to platform
@@ -27,7 +37,7 @@ def agency_wizard():
 
 def gen_case_structure(case_directory):
     
-    with open(pathme("data/Case_Structure.json"), "r") as file:
+    with open(os.path.join(__abs_path,"data/Case_Structure.json"), "r") as file:
         case_folder_structure = json.load(file)
     for subdirectory in case_folder_structure:
         directory_path = os.path.join(case_directory, subdirectory)
