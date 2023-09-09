@@ -1,9 +1,9 @@
-import sys, os, platform, json, subprocess 
+import sys, os, platform, json, subprocess, re 
 import time, tempfile, zipfile, shutil
 
-from auth import gen_md5
-from config import gen_case_structure
-from utils import auditme
+from .auth import gen_md5
+from .config import gen_case_structure
+from .utils import auditme, CaseDirMe
 
 def closeCase(case):
     """
@@ -21,19 +21,19 @@ Additionally, it generates an MD5 hash for each file and stores them in a file n
     
     # Create a temporary directory to store md5 hashes file
     temp_dir = tempfile.mkdtemp()
+    case_dir_path = CaseDirMe(case).case_dir
 
-    case_dir_path = os.path.join(cases_folder,case)
     file_time = time.strftime("%Y%m%d-%H%M")    #time format: YYYYmmdd-HHMM
 
     md5_temp_path = os.path.join(temp_dir,f"{case}-{file_time}.md5")
-    archive_path = os.path.join(cases_folder,'Archive',f"{case}-{file_time}.zip")
+    archive_path = os.path.join(CaseDirMe().cases_folder,'Archive',f"{case}-{file_time}.zip")
 
     # generating hash of every directory
     with open(md5_temp_path,'w') as hash_file:
         for root, dirs, files in os.walk(case_dir_path):
             for f in files:
                 file_path = os.path.join(root,f)
-                hash_file.write(f"{generate_md5(file_path)} {file_path.replace(case_dir_path,'.')}\n")
+                hash_file.write(f"{gen_md5(file_path)} {file_path.replace(case_dir_path,'.')}\n")
         hash_file.close()
 
     # creates zip file of case folder
@@ -59,7 +59,7 @@ def archiveCase(case):
     args: casename to archive and then delete its folder
     """
     closeCase(case)
-    case_dir_path = os.path.join(cases_folder,case)
+    case_dir_path = CaseDirMe(case).case_dir
     shutil.rmtree(case_dir_path)
 	
 def arcIntegrityCheck(archive_path):
@@ -95,7 +95,7 @@ def arcIntegrityCheck(archive_path):
                 if f != md5_file:  # present in the same directory
                     file_path = os.path.join(root,f)
                     md5hash = hash_file.readline()
-                    if md5hash.startswith(generate_md5(file_path)):
+                    if md5hash.startswith(gen_md5(file_path)):
                         print(f"{f} file hash verified!")
                     else:
                         print(f"{f} file failed the integrity check")
@@ -114,7 +114,7 @@ def importCase(archive_path):
     
     casename = md5_name.split('-')[0]
 
-    case_dir_path = os.path.join(cases_folder,casename)
+    case_dir_path = CaseDirMe(casename).case_dir
     
     # Create a temporary directory to extract only approved file in the case folder.
     temp_dir = tempfile.mkdtemp()

@@ -1,4 +1,4 @@
-from utils import pathme
+from .utils import pathme
 
 
 CONFIG_FILE = pathme("data/agency_data.json")

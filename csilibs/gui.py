@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 from PySide2.QtGui import *
 
 from PySide2.QtWidgets import (
-    QApplication, QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
+    QApplication, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QPlainTextEdit, QStatusBar, QInputDialog, QWizard, QWizardPage, QLineEdit, QFormLayout,
     QDialog, QSizePolicy, QToolBar, QAction, QStyle
 )
@@ -37,7 +37,10 @@ import stem
 import stem.control
 from stem.process import launch_tor_with_config
 
-from networking import my_tor_ip
+from .networking import my_tor_ip
+from .utils import pathme, auditme, get_current_timestamp
+from .auth import gen_md5
+
 
 
 class DragDropWidget(QWidget):
@@ -68,7 +71,7 @@ class DragDropWidget(QWidget):
         self.setFixedSize(380,248)
 
     def resizeEvent(self, event):
-        background_image = QImage(pathMe("assets/vault3.png"))
+        background_image = QImage(pathme("assets/vault3.png"))
         scaled_image = background_image.scaled(self.size(), Qt.AspectRatioMode.KeepAspectRatio)
         palette = QPalette()
         palette.setBrush(QPalette.Background, QBrush(scaled_image))
@@ -104,7 +107,7 @@ class DragDropWidget(QWidget):
                 shutil.copy2(path, destination)
             elif os.path.isdir(path):
                 shutil.copytree(path, destination)
-            message = audit_me(self.audit_file, f"Added  {path} to the Evidence Vault")
+            message = auditme(self.audit_file, f"Added  {path} to the Evidence Vault")
 
 
 class BrowseMe(QMainWindow):
@@ -182,7 +185,7 @@ class BrowseMe(QMainWindow):
             q.setScheme("http")
         if urlparse(self.urlbar.text()).netloc.endswith('.onion') and my_tor_ip()[1] == None:
             
-            subprocess.run(pathMe('CSI_TorVPN'), shell=True)
+            subprocess.run(pathme('CSI_TorVPN'), shell=True)
             
         self.browser.setUrl(q)
 
@@ -222,7 +225,7 @@ class BrowseMe(QMainWindow):
         screenshot.save(save_path)
         
         with open(f"{save_path}.md5", "w") as f:
-            f.write(generate_md5(save_path))
+            f.write(gen_md5(save_path))
 
 
 class ChromeThread(QThread):

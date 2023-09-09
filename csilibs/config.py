@@ -1,13 +1,14 @@
 import sys, os, platform, json, subprocess
-from utils import auditme, get_current_timestamp, pathme
+from .utils import auditme, get_current_timestamp, pathme
 
-# Important!
-# if not os.path.exists(pathme("data/agency_data.json")):
-#     try:
-#         subprocess.run(["python", "Agency_Wizard.py"])
-#     except Exception as e:
-#         print(f"An error occurred: {str(e)}")
-#         sys.exit()
+__abs_path = os.path.abspath(os.path.dirname(__file__))  
+
+def agency_wizard():
+    try:
+        subprocess.run(["python", os.path.join(__abs_path,"Agency_Wizard.py")])
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        sys.exit()
 
 
 # with open(pathme("data/agency_data.json"), "r") as file:

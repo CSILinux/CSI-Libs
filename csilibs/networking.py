@@ -17,8 +17,8 @@ from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 
-from utils import get_random_useragent
-from auth import checkpass
+from .utils import get_random_useragent
+from .auth import checkpass
 
 def ChromedriverCheck(startme, additional_options=None, onion=False):
     driver = None
