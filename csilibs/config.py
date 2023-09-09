@@ -21,6 +21,8 @@ def new_case_wizard():
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return None
+    
+    
 # with open(pathme("data/agency_data.json"), "r") as file:
 #     data = json.load(file)
 #     if data.get("cases_folder") == '':  # by default agency_data.json shouldn't have any folder so that it can generate according to platform
