@@ -12,15 +12,23 @@ class SitesDict(TypedDict):
     type: str
     key: str
     onoff: str
-    
+
+class KeywordLists:
+    dir_path = os.path.join(_abs_path,'KeywordLists')
+    files = [os.path.join(_abs_path,'KeywordLists',f) for f in os.listdir(dir_path)] 
 
 class Templates:
+    dir_path = os.path.join(_abs_path,'Templates')
     DOCX_CSI_TEMPLATE = os.path.join(_abs_path,'Templates','csi-template.docx')
     ODT_CSI_TEMPLATE = os.path.join(_abs_path,'Templates','csi-template.odt')
     ODT_CSI_MISSING_PERSON = os.path.join(_abs_path,'Templates','CSI-Missing-Persons-Template.odt')
     ODT_DIGITAL_EVIDENCE_FORENSIC = os.path.join(_abs_path,'Templates','Digital-Evidence-Forensic-Report-Template.odt')
     ODT_CONSENT_TO_SEARCH = os.path.join(_abs_path,'Templates','Consent-to-Search.odt')
     
+    @classmethod
+    def get_templates(cls):
+        return {key: value for key, value in cls.__dict__.items() if key.startswith('DOCX_') or key.startswith('ODT_')}
+
     
 class SitesUser:
     SITES_SOCIAL = "Social_sites"
