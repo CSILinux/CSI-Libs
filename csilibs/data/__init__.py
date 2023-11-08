@@ -5,14 +5,6 @@ from csilibs.auth import gen_key, encrypt, decrypt
 _abs_path = os.path.abspath(os.path.dirname(__file__))  
 
 
-class SitesDict(TypedDict):
-    site_name: str
-    site_url: str
-    method: str
-    type: str
-    key: str
-    onoff: str
-
 class KeywordLists:
     dir_path = os.path.join(_abs_path,'KeywordLists')
     files = [os.path.join(_abs_path,'KeywordLists',f) for f in os.listdir(dir_path)] 
@@ -29,6 +21,14 @@ class Templates:
     def get_templates(cls):
         return {key: value for key, value in cls.__dict__.items() if key.startswith('DOCX_') or key.startswith('ODT_')}
 
+
+class SitesDict(TypedDict):
+    site_name: str
+    site_url: str
+    method: str
+    type: str
+    key: str
+    onoff: str
     
 class SitesUser:
     SITES_SOCIAL = "Social_sites"
@@ -36,12 +36,29 @@ class SitesUser:
     SITES_ONION = "Onion_sites"
     SITES_FIN = "Financial_sites"
     SITES_GAMING = "Gaming_sites"
-    SITES_SAFE_LIST = [SITES_FIN,SITES_GAMING,SITES_GAMING,SITES_SOCIAL]
 
+    @classmethod
+    def get_sites(cls):
+        return [value for key, value in cls.__dict__.items() if key.startswith('SITES')]
+    
+    @classmethod
+    def get_sites_safe(cls):
+        return [value for key, value in cls.__dict__.items() if key.startswith('SITES') and not key == 'SITES_NSFW']
+    
+    
     db_filename = os.path.join(_abs_path,'sites_userenum.db')
     
     @staticmethod
-    def get_data(sites_category=SITES_SOCIAL):   
+    def get_data(sites_category=SITES_SOCIAL): 
+        """Get the data in the form of lists of dictionaries from sqlitedb
+
+        Args:
+            sites_category (_type_, optional): _description_. Defaults to SITES_SOCIAL.
+
+        Returns:
+            _type_: _description_
+        """
+          
         with sqlite3.connect(SitesUser.db_filename) as conn:
             cursor = conn.cursor()
             
@@ -58,7 +75,21 @@ class SitesUser:
             return result
     
     
-    def add_data(sites_category, data: SitesDict):
+    def add_data(sites_category: str, data: SitesDict):
+        """Add data to sqlite database of sites_userenum
+
+        Args:
+            sites_category (str): '<site category name>'
+            data (SitesDict): {
+                site_name: str,
+                site_url: str,
+                method: str,
+                type: str,
+                key: str,
+                onoff: str
+            }
+       
+        """
         if not all(key in data and isinstance(data[key], str) for key in SitesDict.__annotations__):
             raise ValueError("Invalid 'data' dictionary format. It should match the 'SitesDict' format.\n SitesDict = {'site_name': str, 'site_url': str, 'method': str, 'type': str, 'key': str, 'onoff': str }")
         
