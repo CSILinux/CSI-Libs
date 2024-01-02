@@ -15,7 +15,7 @@ def new_case_wizard():
     try:
         completed_process = subprocess.run(["python", os.path.join(__abs_path, "New_Case_Wizard.py")], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if completed_process.returncode == 0 and completed_process.stdout != '':
-            return os.path.basename(completed_process.stdout)
+            return os.path.basename(completed_process.stdout.strip())
         else:
             return None
     except Exception as e:
