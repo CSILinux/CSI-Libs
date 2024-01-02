@@ -5,7 +5,7 @@ from PySide2.QtWidgets import QApplication, QWizard, QFileDialog, QLineEdit
 from PySide2 import QtCore, QtGui, QtWidgets
 from csilibs.assets import images
 
-__abs_path = os.path.abspath(os.path.dirname(__file__))
+_abs_path = os.path.abspath(os.path.dirname(__file__))
 
 class UiWizard(object):
     def setupUi(self, Wizard):
@@ -169,11 +169,11 @@ class UiWizard(object):
             "email": self.aemail.text(),
             "website": self.awebsite.text()
         }
-        with open(os.path.join(__abs_path,"data/agency_data.json"), 'w') as f:
+        with open(os.path.join(_abs_path,"data/agency_data.json"), 'w') as f:
             json.dump(adata, f)
 
 def load_data():  
-    agency_data_path = os.path.join(__abs_path,"data/agency_data.json")
+    agency_data_path = os.path.join(_abs_path,"data/agency_data.json")
     if os.path.exists(agency_data_path):
         with open(agency_data_path, "r") as file:
             data = json.load(file)
