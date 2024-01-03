@@ -1,6 +1,6 @@
 import sys, os, platform, json, subprocess
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QApplication,  QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QLineEdit, QDialog
 )

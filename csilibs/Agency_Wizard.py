@@ -1,8 +1,8 @@
 import sys, json
 import os
 import shutil
-from PySide2.QtWidgets import QApplication, QWizard, QFileDialog, QLineEdit
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import QApplication, QWizard, QFileDialog, QLineEdit
+from PySide6 import QtCore, QtGui, QtWidgets
 from csilibs.assets import images
 
 _abs_path = os.path.abspath(os.path.dirname(__file__))

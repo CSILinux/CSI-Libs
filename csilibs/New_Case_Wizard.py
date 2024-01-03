@@ -1,8 +1,8 @@
 import sys
 import os
 import shutil
-from PySide2.QtWidgets import QApplication, QWizard, QFileDialog
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import QApplication, QWizard, QFileDialog
+from PySide6 import QtCore, QtGui, QtWidgets
 import json
 from csilibs.utils import pathme, CaseDirMe
 from csilibs.config import create_case_folder
@@ -104,7 +104,7 @@ class Ui_QWizard(object):
         print(case_directory)
 
     def setup_connections(self, wizard):
-        wizard.button(QWizard.FinishButton).clicked.connect(self.save_data)
+        wizard.button(QWizard.WizardButton.FinishButton).clicked.connect(self.save_data)
 
 def load_data():
     global cases_folder    
