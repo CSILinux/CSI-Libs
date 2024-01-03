@@ -64,6 +64,7 @@ def pathme(relative_path, set_for_pyinstaller=False):
         
 #---- dynamically generates absolute path for different platforms having different usernames
 class CaseDirMe:
+    
     """
     A class to dynamically retrieve the case directory.
 
@@ -126,10 +127,10 @@ class CaseDirMe:
         return cases_folder
     
     def createCase(self):
+        from .config import new_case_wizard
+        
         try:
-            result = subprocess.run(["python", "New_Case_Wizard.py"], check=True, capture_output=True, text=True)
-            case = result.stdout.strip()  # Extract the case value from the subprocess output
-            self.case_dir = case
+            self.case_dir = new_case_wizard()
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             sys.exit()

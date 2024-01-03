@@ -116,10 +116,11 @@ def importCase(archive_path):
     
     casename = md5_name.split('-')[0]
 
-    case_dir_path = CaseDirMe(casename).case_dir
+    case_dir_path = os.path.join(CaseDirMe().case_dir,casename)
     
     # Create a temporary directory to extract only approved file in the case folder.
     temp_dir = tempfile.mkdtemp()
+    
     
     with zipfile.ZipFile(archive_path, 'r') as arc_file:
         arc_file.extractall(temp_dir)
@@ -132,6 +133,7 @@ def importCase(archive_path):
     
     case_dir_path = case_dir_path if count == 0 else f"{case_dir_path}-{count}"
 
+        
     with zipfile.ZipFile(archive_path, 'r') as arc_file:
         for root, _, files in os.walk(temp_dir):
             for f in files:
