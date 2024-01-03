@@ -18,7 +18,10 @@ Additionally, it generates an MD5 hash for each file and stores them in a file n
     Returns:
 	None
     """
-    
+    # To cope with the problem if path is given by mistake
+    if os.path.exists(case) or '/' in case or '\\' in case:
+        raise Exception("Input must be a CaseName not any path")
+
     # Create a temporary directory to store md5 hashes file
     temp_dir = tempfile.mkdtemp()
     case_dir_path = CaseDirMe(case).case_dir
@@ -38,7 +41,6 @@ Additionally, it generates an MD5 hash for each file and stores them in a file n
 
     # creates zip file of case folder
     with zipfile.ZipFile(archive_path, 'w') as case_zip:
-        # Add the modified content.xml back to the ODT
         for root, _, files in os.walk(case_dir_path):
             for file in files:
                 file_path = os.path.join(root, file)
