@@ -361,9 +361,15 @@ class ChromeThread(QThread):
 def percentSize(object, width_percentage=100, height_percentage=100):
     # use 'app' to get desktop relative sizing, for others pass the object not string 
     if type(object) == str and  object.lower().endswith('app'):
-        desktop_size = QApplication.desktop().availableGeometry()
-        object = desktop_size
+        raise Exception("Convert 'app' string argument in percentSize() to QApplication object, because of pyside6 update!")
+    #     desktop_size = screen()
 
+    #     print('test',desktop_size)
+        
+    #     object = desktop_size
+    if hasattr(object, "primaryScreen"):
+        object = object.primaryScreen().availableGeometry()
+    
     width = int(object.width() * (width_percentage/100))
     height = int(object.height() * (height_percentage/100))
     return (width, height)
