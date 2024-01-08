@@ -1,22 +1,22 @@
-from PySide2.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from urllib.parse import urlparse
 from datetime import datetime
 import os
 
 import subprocess
 import os
-from PySide2.QtCore import QDateTime, QUrl, QThread, Signal as pyqtSignal , QCoreApplication
-from PySide2.QtWebEngineCore import *
-from PySide2.QtWebEngineWidgets import *
+from PySide6.QtCore import QDateTime, QUrl, QThread, Signal as pyqtSignal , QCoreApplication
+from PySide6.QtWebEngineCore import *
+from PySide6.QtWebEngineWidgets import *
 from urllib.parse import urlparse
-from PySide2.QtGui import *
+from PySide6.QtGui import *
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QPlainTextEdit, QStatusBar, QInputDialog, QWizard, QWizardPage, QLineEdit, QFormLayout,
-    QDialog, QSizePolicy, QToolBar, QAction, QStyle
+    QDialog, QSizePolicy, QToolBar, QStyle
 )
-from PySide2.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from datetime import datetime
 
@@ -161,15 +161,19 @@ class BrowseMe(QMainWindow):
         self.show()
 
     def center_window(self):
-        # Get the screen's geometry
-        screen_geometry = QApplication.desktop().screenGeometry()
+        # # Get the screen's geometry
+        # screen_geometry = QApplication.desktop().screenGeometry()
 
-        # Calculate the window's position
-        x = (screen_geometry.width() - self.width()) // 2
-        y = (screen_geometry.height() - self.height()) // 2
+        # # Calculate the window's position
+        # x = (screen_geometry.width() - self.width()) // 2
+        # y = (screen_geometry.height() - self.height()) // 2
 
-        # Move the window to the calculated position
-        self.move(x, y)
+        # # Move the window to the calculated position
+        # self.move(x, y)
+        qRect = self.frameGeometry()
+        center_point = QGuiApplication.primaryScreen().availableGeometry().center()
+        qRect.moveCenter(center_point)
+        self.move(qRect.topLeft())
 
 
     def update_title(self):
