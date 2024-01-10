@@ -117,6 +117,15 @@ class BrowseMe(QMainWindow):
         self.center_window()
         self.edir = evidence_dir
         self.browser = QWebEngineView()
+         # Enable required settings
+        web_settings = self.browser.settings()
+
+        web_settings.setAttribute(QWebEngineSettings.JavascriptEnabled, True)
+        web_settings.setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
+        web_settings.setAttribute(QWebEngineSettings.LocalContentCanAccessFileUrls, True)
+        web_settings.setAttribute(QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
+
+        
         self.browser.setUrl(QUrl(url))
         self.browser.urlChanged.connect(self.update_urlbar)
         self.browser.loadFinished.connect(self.update_title)
