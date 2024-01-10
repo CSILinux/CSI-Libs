@@ -2,6 +2,9 @@ import sys, os, shutil, subprocess, platform, json, random, re
 import zipfile, tempfile
 from PySide2.QtCore import QDateTime
 
+_abs_path = os.path.abspath(os.path.dirname(__file__))        
+
+
 def pathme(relative_path, set_for_pyinstaller=False):
     """
     Returns the absolute path based on the operating system or the given relative path depends on the availability
@@ -85,12 +88,13 @@ class CaseDirMe:
     """
     def __init__(self, case_name = '', create=False, config_file="agency_data.json"):        
         # finds the cases_folder location otherwise generate the default ones according to OS
-        with open(pathme(f"data/{config_file}"), "r") as file:
+        agency_data_path = os.path.join(_abs_path,f"data/{config_file}")
+        with open(agency_data_path, "r") as file:
             data = json.load(file)
             if data.get("cases_folder") == '':  # by default agency_data.json shouldn't have any folder so that it can generate according to platform
                 self.cases_folder = self.defaultCasesDir()
                 data["cases_folder"] = self.cases_folder
-                with open(pathme("data/agency_data.json"),"w") as json_file:
+                with open(agency_data_path,"w") as json_file:
                     json.dump(data, json_file)
             else:
                 self.cases_folder = data.get("cases_folder")
@@ -157,7 +161,7 @@ def auditme(case_directory, message):
 
 
 def get_random_useragent():
-    with open(pathme("data/User_Agents.json"), "r") as file:
+    with open(os.path.join(_abs_path,"data/User_Agents.json"), "r") as file:
         user_agents = json.load(file)
     
     random_header = random.choice(user_agents)
