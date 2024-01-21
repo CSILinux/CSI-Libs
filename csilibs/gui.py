@@ -37,7 +37,7 @@ import stem
 import stem.control
 from stem.process import launch_tor_with_config
 
-from .networking import my_tor_ip
+from .networking import my_tor_ip, connectMeTo, disconnectMeFrom
 from .utils import pathme, auditme, get_current_timestamp
 from .auth import gen_md5
 
@@ -149,7 +149,7 @@ class BrowseMe(QMainWindow):
         reload_btn.triggered.connect(self.browser.reload)
         navtb.addAction(reload_btn)
 
-        home_btn = QAction(self.style().standardIcon(QStyle.SP_DialogOpenButton), "Home", self)
+        home_btn = QAction(self.style().standardIcon(QStyle.SP_DirHomeIcon), "Home", self)
         home_btn.triggered.connect(self.navigate_home)
         navtb.addAction(home_btn)
 
@@ -197,8 +197,10 @@ class BrowseMe(QMainWindow):
         if q.scheme() == "":
             q.setScheme("http")
         if urlparse(self.urlbar.text()).netloc.endswith('.onion') and my_tor_ip()[1] == None:
+            connectMeTo('tor', self.browser)
+        if urlparse(self.urlbar.text()).netloc == 'check.torproject.org':
+            connectMeTo('tor', self.browser)
             
-            subprocess.run(pathme('CSI_TorVPN'), shell=True)
             
         self.browser.setUrl(q)
 

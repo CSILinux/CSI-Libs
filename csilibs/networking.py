@@ -1,5 +1,7 @@
 import sys, os, shutil, subprocess, json, requests, psutil, time
 
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtNetwork import QNetworkProxy
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -16,6 +18,12 @@ from bs4 import BeautifulSoup
 from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
+
+
+import socket
+import socks
+from stem import Signal
+from stem.control import Controller
 
 from .utils import get_random_useragent
 from .auth import checkpass
@@ -319,3 +327,107 @@ def CSIIPLocation2(ip_address, istor):
         return {"ip": ip_address, "message": "Congratulations, you are using Tor"}
 
     return None
+
+
+def connectMeTo(network: str, object_proxy=None):
+    """Incomplete summary: connects Pyside6 webengineview, chrome driver and socks tor and other nets
+    
+
+    Args:
+        network (str): 'tor' or 'i2p' or 'loki'
+        object_proxy (Object/Class, optional): takes webdriver.Chrome() or QWebEngineView() Object. Defaults to None.
+
+    Returns:
+        object: only returns in case of chromedriver
+    """
+    network = network.lower()
+    match network:
+        case "tor":
+            return _connect_to_tor(object_proxy)
+            
+            
+def disconnectMeFrom(network: str, object_proxy=None):
+    network = network.lower()
+    match network:
+        case "tor":
+            return _disconnect_from_tor(object_proxy)
+            
+
+# the below dis/connect functions are only intended to be used by dis/connectMe[To/From]() 
+def _connect_to_tor(object_proxy = None):
+    # Check if Tor service is running
+    if os.name == 'posix':  # Linux
+        tor_running = os.system("systemctl is-active --quiet tor")
+    elif os.name == 'nt':  # Windows
+        tor_running = os.system("sc query tor | findstr STATE_RUNNING")
+
+    if tor_running == 0:
+        try:
+            # Connect to the Tor control port with authentication
+            with Controller.from_port(port=9051) as controller:
+                controller.authenticate()  # You may need to provide username and password here
+
+            # Set SOCKS proxy for QWebEngineView if provided
+            if object_proxy and isinstance(object_proxy, QWebEngineView):
+                # Check if QWebEngineView has a valid QWebEnginePage
+                if object_proxy.page():
+                    # Set up QNetworkProxy for QWebEngineView
+                    proxy = QNetworkProxy()
+                    proxy.setType(QNetworkProxy.Socks5Proxy)
+                    proxy.setHostName("127.0.0.1")
+                    proxy.setPort(9050)
+                    QNetworkProxy.setApplicationProxy(proxy)
+                return object_proxy
+
+            # Set SOCKS proxy for ChromeDriver if provided
+            elif object_proxy and isinstance(object_proxy, webdriver.Chrome):
+                # Set up the SOCKS proxy for connection
+                chrome_options = webdriver.ChromeOptions()
+                chrome_options.add_argument('--headless')
+                chrome_options.add_argument('--proxy-server=socks5://127.0.0.1:9050')
+                
+                # Create a new ChromeDriver instance with the updated options
+                chromedriver = webdriver.Chrome(options=chrome_options)
+                print("Connected to Tor with ChromeDriver.")
+                return chromedriver
+            
+            else:
+                # Set up the SOCKS proxy for connection
+                socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050, True)
+                socket.socket = socks.socksocket
+
+
+            print("Connected to Tor.")
+        except Exception as e:
+            print(f"Error connecting to Tor: {e}")
+    else:
+        print("Tor service is not running.")    
+        
+        
+def _disconnect_from_tor(object_proxy=None):
+    try:
+        # If object_proxy is a QWebEngineView, revert the QNetworkProxy settings
+        if object_proxy and isinstance(object_proxy, QWebEngineView):
+            QNetworkProxy.setApplicationProxy(QNetworkProxy())
+            print("Disconnected from Tor in QWebEngineView.")
+
+        # If object_proxy is a ChromeDriver, update the SOCKS proxy settings
+        elif object_proxy and isinstance(object_proxy, webdriver.Chrome):
+            # Set up the SOCKS proxy for connection
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('--headless')
+
+            object_proxy.quit()
+                        
+            # Create a new ChromeDriver instance with the updated options
+            chromedriver = webdriver.Chrome(options=chrome_options)
+            print("Disconnected from Tor in ChromeDriver.")
+            return chromedriver
+
+        # Send a NEWNYM signal to Tor to get a new IP address
+        with Controller.from_port(port=9051) as controller:
+            controller.signal(Signal.NEWNYM)
+            print("Disconnected from Tor network. Moved to surface net.")
+
+    except Exception as e:
+        print(f"Error disconnecting from Tor: {e}")
