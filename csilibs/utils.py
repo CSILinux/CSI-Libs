@@ -1,6 +1,6 @@
 import sys, os, shutil, subprocess, platform, json, random, re
 import zipfile, tempfile
-from PySide2.QtCore import QDateTime
+from PySide6.QtCore import QDateTime
 
 _abs_path = os.path.abspath(os.path.dirname(__file__))        
 
