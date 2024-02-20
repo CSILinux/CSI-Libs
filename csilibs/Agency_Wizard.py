@@ -4,6 +4,7 @@ import shutil
 from PySide6.QtWidgets import QApplication, QWizard, QFileDialog, QLineEdit
 from PySide6 import QtCore, QtGui, QtWidgets
 from csilibs.assets import images
+import qdarktheme
 
 _abs_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -171,6 +172,15 @@ class UiWizard(object):
         }
         with open(os.path.join(_abs_path,"data/agency_data.json"), 'w') as f:
             json.dump(adata, f)
+            
+    
+    def change_theme(self, mode):
+        if mode == 'dark':
+            os.environ['CSI_DARK'] = 'enable'
+            qdarktheme.setup_theme()
+        else:
+            os.environ['CSI_DARK'] = 'disable'
+            qdarktheme.setup_theme("light")
 
 def load_data():  
     agency_data_path = os.path.join(_abs_path,"data/agency_data.json")
@@ -230,6 +240,11 @@ class CustomGraphicsView(QtWidgets.QGraphicsView):
             self.setScene(self.scene())
 
 app = QApplication(sys.argv)
+if os.environ.get("CSI_DARK") == 'disable':
+    qdarktheme.setup_theme("light")
+else:
+    qdarktheme.setup_theme()
+
 QWizard = CustomQWizard()
 ui = UiWizard()
 ui.setupUi(QWizard)

@@ -1,12 +1,14 @@
 import sys
 import os
 import shutil
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication, QWizard, QFileDialog
 from PySide6 import QtCore, QtGui, QtWidgets
 import json
 from csilibs.utils import pathme, CaseDirMe
 from csilibs.config import create_case_folder
 from csilibs.assets import icons
+import qdarktheme
 
 class Ui_QWizard(object):
     def __init__(self):
@@ -24,26 +26,33 @@ class Ui_QWizard(object):
         self.wizardPage1.setObjectName("wizardPage1")
         self.gridLayout = QtWidgets.QGridLayout(self.wizardPage1)
         self.gridLayout.setObjectName("gridLayout")
+        
+        self.headlabel = QtWidgets.QLabel("Starting a Case")
+        self.headlabel.setAlignment(QtCore.Qt.AlignCenter)
+        font = QFont("Arial", 16, QFont.Bold) 
+        self.headlabel.setFont(font)
+        self.gridLayout.addWidget(self.headlabel,0, 0, 1, 5)
+        
+        
+        self.create_label(self.gridLayout, "Case Name", 1, 0)
+        self.lineEdit = self.create_line_edit(self.gridLayout, 1, 1, 1, 3)
 
-        self.create_label(self.gridLayout, "Case Name", 0, 0)
-        self.lineEdit = self.create_line_edit(self.gridLayout, 0, 1, 1, 3)
-
-        self.create_label(self.gridLayout, "Investigator Name", 1, 0)
-        self.lineEdit_2 = self.create_line_edit(self.gridLayout, 1, 1, 1, 3)
+        self.create_label(self.gridLayout, "Investigator Name", 2, 0)
+        self.lineEdit_2 = self.create_line_edit(self.gridLayout, 2, 1, 1, 3)
 
         self.calendarWidget = QtWidgets.QCalendarWidget(self.wizardPage1)
         self.calendarWidget.setFont(self.font)  # Set the desired font and point size
         self.calendarWidget.setObjectName("calendarWidget")
-        self.gridLayout.addWidget(self.calendarWidget, 0, 4, 5, 1)
+        self.gridLayout.addWidget(self.calendarWidget, 1, 4, 5, 1)
 
-        self.create_label(self.gridLayout, "Case Type", 2, 0)
-        self.lineEdit_3 = self.create_line_edit(self.gridLayout, 2, 1, 1, 3)
+        self.create_label(self.gridLayout, "Case Type", 3, 0)
+        self.lineEdit_3 = self.create_line_edit(self.gridLayout, 3, 1, 1, 3)
 
-        self.create_label(self.gridLayout, "Case Priority", 3, 0)
-        self.priorityme = self.create_combobox(self.gridLayout, 3, 1, 1, 3, ["Informational", "Low", "Medium", "High", "Critical"])
+        self.create_label(self.gridLayout, "Case Priority", 4, 0)
+        self.priorityme = self.create_combobox(self.gridLayout, 4, 1, 1, 3, ["Informational", "Low", "Medium", "High", "Critical"])
 
-        self.create_label(self.gridLayout, "Case Classification", 4, 0)
-        self.classme = self.create_combobox(self.gridLayout, 4, 1, 1, 3, ["Sensitive But Unclassified // SBU", "Confidential // C", "For Official Use Only // FOUO", "Secret // S", "Top Secret // TS"])
+        self.create_label(self.gridLayout, "Case Classification", 5, 0)
+        self.classme = self.create_combobox(self.gridLayout, 5, 1, 1, 3, ["Sensitive But Unclassified // SBU", "Confidential // C", "For Official Use Only // FOUO", "Secret // S", "Top Secret // TS"])
 
         self.line = QtWidgets.QFrame(self.wizardPage1)
 
@@ -81,7 +90,7 @@ class Ui_QWizard(object):
 
     def retranslateUi(self, Wizard):
         _translate = QtCore.QCoreApplication.translate
-        Wizard.setWindowTitle(_translate("Wizard", "Starting a Case"))
+        Wizard.setWindowTitle(_translate("Wizard", "New Case Wizard"))
 
     def save_data(self):
 
@@ -105,6 +114,15 @@ class Ui_QWizard(object):
 
     def setup_connections(self, wizard):
         wizard.button(QWizard.WizardButton.FinishButton).clicked.connect(self.save_data)
+    
+    
+    def change_theme(self, mode):
+        if mode == 'dark':
+            os.environ['CSI_DARK'] = 'enable'
+            qdarktheme.setup_theme()
+        else:
+            os.environ['CSI_DARK'] = 'disable'
+            qdarktheme.setup_theme("light")
 
 def load_data():
     global cases_folder    
@@ -119,26 +137,31 @@ class CustomGraphicsView(QtWidgets.QGraphicsView):
         super(CustomGraphicsView, self).__init__(parent)
         self.setScene(QtWidgets.QGraphicsScene(self))
 
-    def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            self.open_image()
+    # def mousePressEvent(self, event):
+    #     if event.button() == QtCore.Qt.LeftButton:
+    #         self.open_image()
 
-    def open_image(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.xpm *.jpg *.bmp);;All Files (*)", options=options)
+    # def open_image(self):
+    #     options = QFileDialog.Options()
+    #     options |= QFileDialog.ReadOnly
+    #     file_name, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.xpm *.jpg *.bmp);;All Files (*)", options=options)
 
-        if file_name:
-            dest_path = pathme("assets/fingerprint.png")
-            shutil.copyfile(file_name, dest_path)
-            # Display the copied and scaled image in the QGraphicsView
-            pixmap = QtGui.QPixmap(dest_path)
-            scaled_pixmap = pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-            self.scene().clear()
-            self.scene().addPixmap(scaled_pixmap)
-            self.setScene(self.scene())
+    #     if file_name:
+    #         dest_path = pathme("assets/fingerprint.png")
+    #         shutil.copyfile(file_name, dest_path)
+    #         # Display the copied and scaled image in the QGraphicsView
+    #         pixmap = QtGui.QPixmap(dest_path)
+    #         scaled_pixmap = pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+    #         self.scene().clear()
+    #         self.scene().addPixmap(scaled_pixmap)
+    #         self.setScene(self.scene())
 
 app = QApplication(sys.argv)
+if os.environ.get("CSI_DARK") == 'disable':
+    qdarktheme.setup_theme("light")
+else:
+    qdarktheme.setup_theme()
+
 QWizard = CustomQWizard()
 ui = Ui_QWizard()
 ui.setupUi(QWizard)
