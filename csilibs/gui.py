@@ -5,7 +5,7 @@ import os
 
 import subprocess
 import os
-from PySide6.QtCore import QDateTime, QUrl, QThread, Signal as pyqtSignal , QCoreApplication
+from PySide6.QtCore import QDateTime, QUrl, QThread, Signal as pyqtSignal , QCoreApplication, QRect
 from PySide6.QtWebEngineCore import *
 from PySide6.QtWebEngineWidgets import *
 from urllib.parse import urlparse
@@ -14,7 +14,7 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QPlainTextEdit, QStatusBar, QInputDialog, QWizard, QWizardPage, QLineEdit, QFormLayout,
-    QDialog, QSizePolicy, QToolBar, QStyle
+    QDialog, QSizePolicy, QToolBar, QStyle, QTabWidget, QMenuBar, QMenu
 )
 from PySide6.QtCore import Qt
 
@@ -40,7 +40,9 @@ from stem.process import launch_tor_with_config
 from .networking import my_tor_ip, connectMeTo, disconnectMeFrom
 from .utils import pathme, auditme, get_current_timestamp
 from .auth import gen_md5
+from .assets import icons
 
+import qdarktheme
 
 
 class DragDropWidget(QWidget):
@@ -388,3 +390,123 @@ def percentSize(object, width_percentage=100, height_percentage=100):
     width = int(object.width() * (width_percentage/100))
     height = int(object.height() * (height_percentage/100))
     return (width, height)
+
+
+# CSI GUI Templates.
+class BaseCSITabs(QDialog):
+    """Provide QWidgets/QMainWindow with the tab name to create multiple tabs, it is used along with CSIMainWindow
+
+    Args:
+        QDialog ([Tab_name : QWidget/QMainWindow] :dict): returns an object that can be set to CSIMainWindow
+        
+    Example Code:
+        app = QApplication(sys.argv)
+
+        main_window = CSIMainWindow()
+
+        widget1 = MyQMainWindow()
+        tabs = BaseCSITabs({"My Info":widget1})
+        
+        main_window.setCentralWidget(tabs)
+        main_window.set_application(app)
+        
+        main_window.show()
+        sys.exit(app.exec_())
+    """
+    def __init__(self, widgets_dict, tab_direction = "up"):
+        super().__init__()
+        tabwidget = QTabWidget()
+        if tab_direction.lower() in ['down', 'bottom', 'south']: 
+            tabwidget.setTabPosition(QTabWidget.South)
+        elif tab_direction.lower() in ['left', 'west']: 
+            tabwidget.setTabPosition(QTabWidget.West)
+        elif tab_direction.lower() in ['right', 'east']: 
+            tabwidget.setTabPosition(QTabWidget.East)
+        # Create tabs
+        for tab_name, widget in widgets_dict.items():
+            tabwidget.addTab(widget, tab_name)        
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(tabwidget)
+        
+        self.setLayout(vbox)
+        
+class CSIMainWindow(QMainWindow):
+    """The main window class for the CSI application."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle(f"CSI Manager")
+        self.setWindowIcon(QIcon(icons.CSI_BLACK))
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        self.application = None
+        # self.setFixedSize(*percentSize("app",70,90))
+
+        #-------------------------- MENU BAR --------------------------#
+        self.menubar = QMenuBar(self)
+        self.menubar.setObjectName("menubar")
+        self.setMenuBar(self.menubar)
+        
+        # menu list
+        self.menuList = QMenu(self.menubar)
+        self.menuList.setTitle("Menu List")
+        
+        self.themeMenu = QMenu(self.menubar)
+        self.themeMenu.setTitle("Themes")
+        
+        # menu options within menu list
+        self.menuOption = QAction(self)
+        self.menuOption.setText("Menu Option")
+        self.menuOption.setStatusTip("Template status Tip")
+        self.menuOption.setShortcut("Ctrl+S")
+        self.menuList.addAction(self.menuOption)
+
+        self.fullscreenOption = QAction(self)
+        self.fullscreenOption.setShortcut("Ctrl+F")
+        self.fullscreenOption.setText("FullScreen Toggle")
+        self.fullscreenOption.setStatusTip("Click to move to and from FullScreen")
+    
+        self.menuList.addAction(self.fullscreenOption)
+
+        self.menubar.addAction(self.menuList.menuAction())
+
+        self.darkTheme = QAction(self)
+        self.darkTheme.setText("Dark Theme")
+        self.darkTheme.setStatusTip("Enable Dark theme")
+        self.themeMenu.addAction(self.darkTheme)
+        self.lightTheme = QAction(self)
+        self.lightTheme.setText("Light Theme")
+        self.lightTheme.setStatusTip("Enable Light theme")
+        self.themeMenu.addAction(self.lightTheme)
+
+        self.menubar.addAction(self.themeMenu.menuAction())
+
+        self.darkTheme.triggered.connect(lambda: self.theme_change("dark"))
+        self.lightTheme.triggered.connect(lambda: self.theme_change("light"))
+        print("fullscreen",self.isFullScreen())
+        self.fullscreenOption.triggered.connect(lambda: self.showFullScreen() if not self.isFullScreen() else self.showNormal())
+
+    def theme_change(self, theme_color):
+        qdarktheme.setup_theme(theme_color)
+
+    def center(self):
+        qRect = self.frameGeometry()
+        center_point = QGuiApplication.primaryScreen().availableGeometry().center()
+        qRect.moveCenter(center_point)
+        self.move(qRect.topLeft())
+
+    def set_application(self, application,width_percent=70, height_percent=90):
+        """Set the application instance.
+            last 2 args are optional for setting window size according to desktop size percentage
+        """
+        self.application = application
+        # set size
+        self.setGeometry(0,0, *percentSize(self.application,width_percent,height_percent))
+        self.menubar.setGeometry(QRect(0, 0, *percentSize(self.application,95,10)))
+        self.center()
+        
+
+    def update_status(self, message):
+        """Update the status bar with the given message."""
+        self.status_bar.showMessage(message)  
