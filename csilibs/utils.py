@@ -349,7 +349,7 @@ def reportme(tmpl_path,out_path,data_dict, img_dict=None):
 
                 main_search_string = f'&lt;{placeholder}&gt;'
                 
-                occurrences = re.finditer(rf'(<w:p>(?:(?!<w:p>).)*?)(<w:r>(?:(?!<w:r>).)*?)<w:t>[^<>]*?({main_search_string})', content)
+                occurrences = re.finditer(rf'(<w:p(?:(?!<w:p )(?!<w:p>).)*?)(<w:r>(?:(?!<w:r>).)*?)<w:t>[^<>]*?({main_search_string})', content)
                 
 
                 for count, occurrence in enumerate(occurrences):    
